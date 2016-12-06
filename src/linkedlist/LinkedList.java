@@ -8,48 +8,104 @@ import collections.Collection;
 import list.Iterator;
 import list.List;
 
+import static java.lang.System.*;
+
 
 /**
  * Created by Наталья on 31.10.2016.
  */
-public class LinkedList<T> implements List<T>, Cloneable {
+public class LinkedList<T> implements List<T>,Collection<T> {
 
-    private Node<T> firstNode;
-    private Node<T> lastNode;
+    private Node<T> first;
+    private Node<T> last;
     private int size;
 
     public T getFirst() {
-        if (firstNode != null)
-            return firstNode.getValue();
+        if (first != null)
+            return first.getValue();
         return null;
     }
 
     public T getLast() {
-        if (lastNode != null)
-            return lastNode.getValue();
+        if (last != null) return last.getValue();
         return null;
     }
 
-    public void addFirst(T value) {
 
-        Node<T> node = new Node<>(value, firstNode, null);
-        if (firstNode != null) {
-            firstNode.setPrevious(node);
+    @Override
+    public boolean add(T t) {
+        addLast(t);
+        return true;
+    }
+
+    public void addFirst(T value) {
+        Node<T> node = new Node<>(value, first, null);
+        if (first != null) {
+            first.setPrevious(node);
         }
-        firstNode = node;
+        first = node;
         size++;
         if (size == 1) {
-            lastNode = node;
+            last = node;
+        }
+    }
+
+    public void addLast(T value) {
+        Node<T> node = new Node<>(value, null, last);
+        if (last != null) {
+            last.setNext(node);
+        }
+        last = node;
+        size++;
+        if (size == 1) {
+            first = node;
+        }
+    }
+
+    @Override
+    public void addAll(Collection<T> collection) {
+        Iterator<T> iterator = collection.getIterator();
+        while (iterator.hasNext()) {
+            this.addFirst(iterator.next());
+        }
+
+    }
+
+    @Override
+    public void remove() {
+        removeFirst();
+    }
+
+    @Override
+    public void removeByIndex(int i) {
+        if (i < 0 || i >= size) {
+            throw new IllegalArgumentException("Index " + i + " is out of bounds");
+        }
+        if (i == 0) {
+            removeFirst();
+        } else if (i == size - 1) {
+            removeLast();
+        } else {
+            Node<T> currentNode = first;
+            int counter = 0;
+            while (currentNode != null) {
+                if (counter == i) {
+                    remove(currentNode);
+                    break;
+                }
+                currentNode = currentNode.getNext();
+                counter++;
+            }
         }
     }
 
     private void remove(Node<T> node) {
         if (!isEmpty()) {
-            if (node == firstNode) {
-                firstNode = node.getNext();
+            if (node == first) {
+                first = node.getNext();
             }
-            if (node == lastNode) {
-                lastNode = node.getPrevious();
+            if (node == last) {
+                last = node.getPrevious();
             }
             if (node.getPrevious() != null) {
                 node.getPrevious().setNext(node.getNext());
@@ -62,28 +118,39 @@ public class LinkedList<T> implements List<T>, Cloneable {
     }
 
     public void removeFirst() {
-        remove(firstNode);
-    }
-
-    public void addLast(T value) {
-        Node<T> node = new Node<>(value, null, lastNode);
-        if (lastNode != null) {
-            lastNode.setNext(node);
-        }
-        lastNode = node;
-        size++;
-        if (size == 1) {
-            firstNode = node;
-        }
+        remove(first);
     }
 
     public void removeLast() {
-        remove(lastNode);
+        remove(last);
     }
 
+    @Override
+    public boolean remove(T value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Value is null");
+        }
+        Node<T> currentNode = first;
+        while (currentNode != null) {
+            if (value.equals(currentNode.getValue())) {
+                remove(currentNode);
+                return true;
+            }
+            currentNode = currentNode.getNext();
+
+        }
+        return false;
+    }
+
+    /*@Override
+    public boolean removeAll(Collection<T> collection) {
+        return false;
+    }*/
+
+
     public void clear() {
-        lastNode = null;
-        firstNode = null;
+        last = null;
+        first = null;
         size = 0;
     }
 
@@ -92,24 +159,24 @@ public class LinkedList<T> implements List<T>, Cloneable {
     }
 
     public boolean isEmpty() {
-        if (firstNode == null) {
-            return true;
-        }
-        return false;
+       return first==null;
     }
 
     public Iterator<T> getIterator() {
-        return new ListIterator<T>(firstNode);
+        return new ListIterator<T>(first);
     }
 
     @Override
     public LinkedList<T> clone() {
-        LinkedList<T> list = new LinkedList<>();
-        list.addAll(this);
+        LinkedList<T> list1 = new LinkedList<>();
+        list1.addAll(this);
+        LinkedList<T> list= new LinkedList<>(); //иначе инверсивный список
+        list.addAll(list1);
         return list;
     }
 
-    public boolean equals(Object o) {
+
+    @Override public boolean equals(Object o) {
         if (o != null && o instanceof LinkedList) {
             LinkedList<?> list = (LinkedList<?>) o;
             if (list.size == this.size) {
@@ -139,7 +206,7 @@ public class LinkedList<T> implements List<T>, Cloneable {
         return sb.toString();
     }
 
-    @Override
+   /* @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -150,28 +217,7 @@ public class LinkedList<T> implements List<T>, Cloneable {
         }
         return result * prime + this.size;
 
-    }
-
-    @Override
-    public void addAll(Collection<T> collection) {
-        Iterator<T> iterator = collection.getIterator();
-        while (iterator.hasNext()) {
-            this.addFirst(iterator.next());
-        }
-
-    }
-
-    @Override
-    public void add(T t) {
-        addFirst(t);
-
-    }
-
-    @Override
-    public void remove() {
-        removeFirst();
-
-    }
+    }*/
 
     @Override
     public T get(int i) {
@@ -185,55 +231,16 @@ public class LinkedList<T> implements List<T>, Cloneable {
         }
         int counter = 0;
         Iterator<T> iterator = this.getIterator();
+        T temp;
         while (iterator.hasNext()) {
+            temp=iterator.next();
             if (counter == i) {
-                return iterator.next();
+                return temp;
             }
             counter++;
         }
         return null;
 
-    }
-
-    @Override
-    public void removeByIndex(int i) {
-        if (i < 0 || i >= size) {
-            throw new IllegalArgumentException("Index " + i + " is out of bounds");
-        }
-        if (i == 0) {
-            removeFirst();
-        } else if (i == size - 1) {
-            removeLast();
-        } else {
-            Node<T> currentNode = firstNode;
-            int counter = 0;
-            while (currentNode != null) {
-                if (counter == i) {
-                    remove(currentNode);
-                    break;
-                }
-                currentNode = currentNode.getNext();
-                counter++;
-            }
-        }
-
-    }
-
-    @Override
-    public boolean remove(T value) {
-        if (value == null) {
-            throw new IllegalArgumentException("Value is null");
-        }
-        Node<T> currentNode = firstNode;
-        while (currentNode != null) {
-            if (value.equals(currentNode.getValue())) {
-                remove(currentNode);
-                return true;
-            }
-            currentNode = currentNode.getNext();
-
-        }
-        return false;
     }
 
     @Override
@@ -246,5 +253,6 @@ public class LinkedList<T> implements List<T>, Cloneable {
         }
         return false;
     }
+
 
 }

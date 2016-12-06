@@ -8,11 +8,17 @@ import list.Iterator;
 
 public interface Collection<T> {
 
+    public boolean add(T element);
+
+    public void addAll(Collection<T> collection);
+
     public void clear();
 
     public boolean isEmpty();
 
-    public void addAll(Collection<T> collection);
+    //public boolean remove(T value);
+
+    //public boolean removeAll(Collection<T> collection);
 
     public Iterator<T> getIterator();
 

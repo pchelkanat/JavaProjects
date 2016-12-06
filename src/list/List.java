@@ -7,7 +7,7 @@ import collections.Collection;
  */
 public interface List<T> extends Collection<T> {
 
-    public void add(T t);
+    public boolean add(T t);
 
     public void remove();
 

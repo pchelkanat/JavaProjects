@@ -102,6 +102,8 @@ public class Matrix {
         return a;
     }
 
+    /*дополнить через swap*/
+
     public boolean equals(Matrix b) {
         Matrix a = this;
         if (a.n != b.n || a.m != b.m) {
